@@ -1,0 +1,7 @@
+user controller:
+userSignup
+userLogOut
+userSignIn
+getUser
+updateProfile
+deleteProfile
