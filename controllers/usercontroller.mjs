@@ -131,23 +131,28 @@ export const userSignIn = async (req, res, next) => {
 
 
 // User Logout  controller:
- const blacklistedTokens = new Set();
+const blacklistedTokens = new Set();
 
- export const userLogOut = async (req, res, next) => {
-     try {
-         const token = req.headers("Authorization")?.split(" ")[1];
-         if (!token) {
-             return res.status(422).json({message: "No token assigned!"});
-         }
-         //If token blacklist it
-         blacklistedTokens.add(token);
-         //respond to request:
-         return res.status(200).json("Logged out successfully!");
-     }
-     catch (error){
-         next(error);
-     }
- }
+export const userLogOut = async (req, res, next) => {
+    try {
+        // ✅ Corrected: Proper way to access headers
+        const token = req.headers.authorization?.split(" ")[1];
+
+        if (!token) {
+            return res.status(422).json({ message: "No token assigned!" });
+        }
+
+        // ✅ Add token to the blacklist
+        blacklistedTokens.add(token);
+
+        // ✅ Return a properly formatted JSON response
+        return res.status(200).json({ message: "Logged out successfully!" });
+    } catch (error) {
+        console.error("Logout error:", error);  // Debugging: Log the error
+        next(error);
+    }
+};
+
 
  //Get User Info
 export const getUser = async (req, res, next) => {
