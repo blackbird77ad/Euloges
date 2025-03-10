@@ -148,7 +148,6 @@ export const userLogOut = async (req, res, next) => {
         // ✅ Return a properly formatted JSON response
         return res.status(200).json({ message: "Logged out successfully!" });
     } catch (error) {
-        console.error("Logout error:", error);  // Debugging: Log the error
         next(error);
     }
 };
@@ -224,39 +223,42 @@ export const updateProfile = async (req, res, next) => {
          next(error);
      }
 }
-
-//Delete user account function:
 export const deleteProfile = async (req, res, next) => {
-     try {
-         //Find user and save email & name before deleting account:
-         const user = await UserModel.findById(req.auth.id);
+    try {
+        // ✅ Check if user exists
+        const user = await UserModel.findById(req.auth?.id);
+        if (!user) {
+            return res.status(404).json({ message: "Action Denied! User not found!" });
+        }
 
-         //If not user in Db
-         if (!user) {
-             return res.status(404).json({ message: "Action Denied! User not found!" });
-         }
+        // ✅ Store email & name before deletion
+        const userEmail = user.email;
+        const userName = user.name;
+        const deleteTime = new Date().toLocaleString();
 
-         //If user then store email and name
-         const userEmail = user.email;
-         const userName = user.name;
+        // ✅ Delete the user
+        const deletedUser = await UserModel.findByIdAndDelete(req.auth.id);
+        if (!deletedUser) {
+            return res.status(404).json({ message: "User not found or already deleted!" });
+        }
 
-         //Deletion time
-         const deleteTime = new Date().toLocaleString();
+        // ✅ Send email confirmation
+        try {
+            await mailTransporter.sendMail({
+                from: 'EULOGES <byourself77by@gmail.com>',
+                to: userEmail,
+                subject: 'ACCOUNT DELETION UPDATE',
+                text: `Hi ${userName},\n\nYour account has been deleted on ${deleteTime}. If this wasn't you, contact support.\n\nBest,\nEuloges`
+            });
+        } catch (emailError) {
+            console.error("Email error:", emailError);
+            return res.status(500).json({ message: "Account deleted, but email notification failed!" });
+        }
 
-// Delete user account here
-         await UserModel.findByIdAndDelete(req.auth.id);
-
-
-         //Send a notification to update the user
-         await mailTransporter.sendMail({
-             from: 'EULOGES <byourself77by@gmail.com>',
-             to: userEmail,
-             subject: 'ACCOUNT DELETION UPDATE',
-             text: `Hi ${userName},\n\nYour account has been deleted on ${deleteTime}. If this wasn't you, contact support.\n\nBest,\nEuloges`
-         });
-         //Send a deletion success response.
-         return res.status(200).json(`Account Deleted Successfully! A confirmation email has been sent!`);
-}
-catch (error) {
-     next(error);}
-}
+        // ✅ Respond with success
+        return res.status(200).json({ message: "Account Deleted Successfully! A confirmation email has been sent!" });
+    } catch (error) {
+        console.error("Delete user error:", error);
+        next(error);
+    }
+};
