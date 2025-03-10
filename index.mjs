@@ -30,6 +30,7 @@ app.use(cors());
 app.use(userRouter);
 app.use(Dashboardrouter)
 app.use(feedRouter)
+app.use(messageRouter)
 
 //listen for incoming request
 const PORT = 5001;
