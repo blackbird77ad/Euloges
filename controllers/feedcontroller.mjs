@@ -95,28 +95,31 @@ export const getFeed = async (req, res, next) => {
 //UPDATE feed||post
 export const updateFeed = async (req, res, next) => {
     try {
-        //validate incoming request from user
-        const {error, value} = updateFeedValidator.validate(req.body);
+        // Validate incoming request
+        const { error } = updateFeedValidator.validate(req.body);
         if (error) {
-            return res.status(422).json({error: error.details[0].message});
+            return res.status(422).json({ error: error.details[0].message });
         }
-        const updatedFeed = await FeedModel.findByIdAndUpdate(
-            {
-                _id: req.params.id, user: req.auth.id
-            },
-            {...req.body },
-            {new: true}
+
+        // Update the feed if it belongs to the authenticated user
+        const updatedFeed = await FeedModel.findOneAndUpdate(
+            { _id: req.params.id, user: req.auth.id }, // Correct query
+            { ...req.body }, // Update fields
+            { new: true } // Return the updated document
         );
 
+        // If feed is not found, return an error
         if (!updatedFeed) {
-            return res.status(404).json("Nothing to update");
+            return res.status(404).json({ error: "Feed not found or unauthorized to update" });
         }
-        //respond to request
-        res.status(201).json({updatedFeed})
-    }
-    catch (error) {
+
+        // Respond with the updated feed
+        res.status(200).json({ updatedFeed });
+    } catch (error) {
         next(error);
-    }}
+    }
+};
+
 
 
     //DELETE Feed||Post
