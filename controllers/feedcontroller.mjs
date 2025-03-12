@@ -25,6 +25,8 @@ export const postFeed  = async (req, res, next) => {
     }
 }
 
+
+
 //GET feed||Post(s)
 export const getFeeds = async (req, res, next) => {
     try {
@@ -48,6 +50,7 @@ export const getFeeds = async (req, res, next) => {
     }
 }
 
+
 //Count feed||Post(S)
 export const countFeed = async (req, res, next) => {
     try {
@@ -66,19 +69,28 @@ export const countFeed = async (req, res, next) => {
 //GET Feed||Post
 export const getFeed = async (req, res, next) => {
     try {
-        //retrieve a post from database
-        const feed = await FeedModel.findById(req.params.id);
-        //If no feed available available, respond to request
-        if (!feed) {
-            return res.status(422).json({error: feed.message});
+        // Check if an ID was provided in the route parameters
+        if (!req.params.id) {
+            return res.status(400).json({ error: "Feed ID is required" });
         }
-        //respond if there feed|| post by the user
-        return res.status(200).json({feed});
-    }
-    catch (error) {
+
+        // Fetch the feed that matches the given ID and belongs to the authenticated user
+        const feed = await FeedModel.findOne({ _id: req.params.id, user: req.auth.id });
+
+        // If no feed is found, respond with a 404 error
+        if (!feed) {
+            return res.status(404).json({ error: "Feed not found" });
+        }
+
+        // Respond with the found feed
+        return res.status(200).json({ feed });
+    } catch (error) {
+        // Pass the error to the error-handling middleware
         next(error);
     }
-}
+};
+
+
 
 //UPDATE feed||post
 export const updateFeed = async (req, res, next) => {

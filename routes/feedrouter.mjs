@@ -12,7 +12,7 @@ const feedRouter = Router();
 
 //Define routes for feeds
 feedRouter.post("/add-post", verifyToken, postFeed);
-feedRouter.get("/get-post", verifyToken, getFeed);
+feedRouter.get("/get-post/:id", verifyToken, getFeed);
 feedRouter.get("/get-posts", verifyToken, getFeeds);
 feedRouter.patch("/update-post", verifyToken, updateFeed);
 feedRouter.delete("/delete-post", verifyToken, deleteFeed);
