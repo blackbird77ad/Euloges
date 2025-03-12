@@ -4,7 +4,7 @@ import {getUserDashboard, getAdminDashboard} from "../controllers/dashboardcontr
 
 const  dashboardRouter = Router();
 
-dashboardRouter.get('/bereaved-dashboard', verifyToken, getUserDashboard);
+dashboardRouter.get('/bereaved-dashboard/', verifyToken, getUserDashboard);
 dashboardRouter.get('/admin-dashboard', verifyToken, getAdminDashboard);
 
 export default dashboardRouter;

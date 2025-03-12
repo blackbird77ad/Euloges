@@ -17,13 +17,17 @@ export const verifyToken = (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
+        // console.log("Decoded Token:", decoded);  // token payload
+
         req.auth = decoded; // Attach user data to request
 
-        next(); // Proceed to the next function
+        next();
     } catch (error) {
+        // console.log("JWT Error:", error.message); // Log any JWT errors
         return res.status(401).json({ message: "Invalid token, please log in again." });
     }
 };
+
 
 // Middleware: Protect logout sessions (Blacklist tokens)
 export const isTokenBlacklisted = (req, res, next) => {
