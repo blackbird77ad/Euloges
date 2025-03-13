@@ -7,6 +7,7 @@ import cors from "cors";
 import userRouter from "./routes/userrouter.mjs";
 import feedRouter from "./routes/feedrouter.mjs";
 import Dashboardrouter from "./routes/Dashboardrouter.mjs";
+import messageRouter from "./routes/messagerouter.mjs";
 
 //DB connection:
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -28,8 +29,9 @@ app.use(cors());
 
 //use route in app
 app.use(userRouter);
-app.use(Dashboardrouter)
-app.use(feedRouter)
+app.use(Dashboardrouter);
+app.use(feedRouter);
+app.use(messageRouter);
 
 
 //listen for incoming request

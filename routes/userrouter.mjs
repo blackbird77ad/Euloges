@@ -1,5 +1,5 @@
 //External Package imports
-import express, {Router} from 'express';
+import  {Router} from 'express';
 
 //Internal variables imports
 import {
