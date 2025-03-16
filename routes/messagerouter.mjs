@@ -1,5 +1,10 @@
 import  {Router} from 'express';
-import { sendMessage, getMessages, editMessage, deleteMessage } from "../controllers/messageController.mjs";
+import {
+    sendMessage,
+    editMessage,
+    getMessages,
+    deleteMessage}
+    from "../controllers/messagecontroller.mjs";
 import {verifyToken} from "../middlewares/auth.mjs";
 
 const messageRouter = Router();
