@@ -6,7 +6,7 @@ const messageRouter = Router();
 
 messageRouter.post("/send",verifyToken, sendMessage);
 messageRouter.get("/:userId", verifyToken, getMessages);
-messageRouter.put("/edit/:messageId", verifyToken, editMessage);
+messageRouter.patch("/edit/:messageId", verifyToken, editMessage);
 messageRouter.delete("/delete/:messageId", verifyToken, deleteMessage);
 
 export default messageRouter;
