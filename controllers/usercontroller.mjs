@@ -262,3 +262,21 @@ export const deleteProfile = async (req, res, next) => {
         next(error);
     }
 };
+
+
+// Follow a user
+export const followUser = async (req, res, next) => {
+    const { userIdToFollow } = req.body;
+
+    try {
+        // Add the user to the following list of the requester
+        await UserModel.findByIdAndUpdate(req.auth.id, { $addToSet: { following: userIdToFollow } });
+
+        // Add the requester to the followers list of the followed user
+        await UserModel.findByIdAndUpdate(userIdToFollow, { $addToSet: { followers: req.auth.id } });
+
+        res.status(200).json({ message: 'You are now following this user.' });
+    } catch (error) {
+        next(error);
+    }
+};
