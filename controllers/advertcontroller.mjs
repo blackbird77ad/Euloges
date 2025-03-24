@@ -5,12 +5,17 @@ import {advertValidator} from "../validators/advertvalidator.mjs";
 //ONLY ADMIN ADS POST
 export const postAdvert = async (req, res, next) => {
     try {
+        // Ensure req.auth is set by the middleware
+        if (!req.auth || !req.auth.role) {
+            return res.status(401).json({ message: 'Unauthorized: User not authenticated.' });
+        }
+
         // Check if the user is an admin
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Forbidden: Only admins can post advertisements.' });
+        if (req.auth.role !== 'admin') {
+            return res.status(403).json({message: 'Forbidden: Only admins can post advertisements.'})
         }
         //validate incoming request
-        const {error, value} = AdvertModel.validate(req.body)
+       const {error, value} = AdvertModel.validate(req.body)
         if (error) {
             return res.status(422).json({error: error.details[0].message});
         }

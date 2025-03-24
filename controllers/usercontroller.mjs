@@ -280,3 +280,20 @@ export const followUser = async (req, res, next) => {
         next(error);
     }
 };
+
+// Unfollow a user
+export const unfollowUser = async (req, res, next) => {
+    const { userIdToUnfollow } = req.body;
+
+    try {
+        // Remove the user from the following list of the requester
+        await UserModel.findByIdAndUpdate(req.auth.id, { $pull: { following: userIdToUnfollow } });
+
+        // Remove the requester from the followers list of the unfollowed user
+        await UserModel.findByIdAndUpdate(userIdToUnfollow, { $pull: { followers: req.auth.id } });
+
+        res.status(200).json({ message: 'You have unfollowed this user.' });
+    } catch (error) {
+        next(error);
+    }
+};
