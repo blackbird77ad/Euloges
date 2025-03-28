@@ -8,7 +8,7 @@ import userRouter from "./routes/userrouter.mjs";
 import feedRouter from "./routes/feedrouter.mjs";
 import Dashboardrouter from "./routes/Dashboardrouter.mjs";
 import messageRouter from "./routes/messagerouter.mjs";
-import Advertrouter  from "./routes/advertrouter.mjs";
+import advertRouter from "./routes/advertrouter.mjs";
 
 //DB connection:
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -33,9 +33,12 @@ app.use(userRouter);
 app.use(Dashboardrouter);
 app.use(feedRouter);
 app.use(messageRouter);
-app.use(Advertrouter);
+app.use(advertRouter);
 
 
 //listen for incoming request
 const PORT = 5001;
 app.listen(PORT, () => {console.log(`App is listening on port: ${PORT}`)});
+
+
+
