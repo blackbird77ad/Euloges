@@ -1,6 +1,6 @@
 import {Router} from "express";
 import {verifyToken} from "../middlewares/auth.mjs";
-import {getAdverts, updateAdvert, deleteAdvert, postAdvert} from '../controllers/advertController.mjs';
+import {getAdverts, updateAdvert, deleteAdvert, postAdvert} from '../controllers/advertcontroller.mjs';
 
 const advertRouter = Router();
 
