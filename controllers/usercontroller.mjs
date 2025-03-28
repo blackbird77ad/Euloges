@@ -135,31 +135,30 @@ const blacklistedTokens = new Set();
 
 export const userLogOut = async (req, res, next) => {
     try {
-        // ✅ Corrected: Proper way to access headers
+        // Corrected: Proper way to access headers
         const token = req.headers.authorization?.split(" ")[1];
 
         if (!token) {
             return res.status(422).json({ message: "No token assigned!" });
         }
 
-        // ✅ Add token to the blacklist
+        //  Add token to the blacklist
         blacklistedTokens.add(token);
 
-        // ✅ Return a properly formatted JSON response
+        // Return a properly formatted JSON response
         return res.status(200).json({ message: "Logged out successfully!" });
     } catch (error) {
         next(error);
     }
 };
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
- //Get User Info
+//1. Get logged-in user profile
 export const getUser = async (req, res, next) => {
     try {
         const user = await UserModel.findById(req.auth.id).select(
             {
                 password: false,
-                confirmPassword: false
             }
         ); //Exclude password from response
 
@@ -168,6 +167,66 @@ export const getUser = async (req, res, next) => {
         }
 
         res.status(200).json(user);
+    } catch (error) {
+        next(error);
+    }
+};
+
+//2. Get another user's profile by ID
+export const getUserById = async (req, res, next) => {
+    try {
+        const { id } = req.params; // Extract user ID from request params
+
+        if (!id) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+        let user;
+
+        if (req.auth.id === id) {
+            // If the logged-in user is requesting their own profile, return full details
+            user = await UserModel.findById(id).select("-password -confirmPassword -resetToken");
+        } else {
+            // If the user is requesting another user's profile, restrict some fields
+            user = await UserModel.findById(id).select(
+                "-password -email -resetToken -dateOfBirth -updatedAt -role"
+            );
+        }
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+//3. Get all users with optional filtering
+export const getAllUsers = async (req, res, next) => {
+    try {
+        const { name } = req.query; // Get name filter from query params
+
+        let query = {};
+
+        if (name) {
+            query = { username: { $regex: name, $options: "i" } }; // Case-insensitive name search
+        }
+
+        const users = await UserModel.find(query).select(
+            {
+                password: false,
+                confirmPassword: false,
+                email: false,
+                resetToken: false,
+                dateOfBirth: false,
+                updatedAt: false,
+                role: false,
+            }
+        );
+
+        res.status(200).json(users);
     } catch (error) {
         next(error);
     }

@@ -8,6 +8,8 @@ import {
     userSignIn,
     userLogOut,
     getUser,
+    getUserById,
+    getAllUsers,
     updateProfile,
     deleteProfile,
     followUser,       // Import followUser function
@@ -23,9 +25,15 @@ userRouter.post('/login', userSignIn); // Test Successful
 userRouter.post('/logout', userLogOut); // Test Successful
 
 // User profile routes
+// Get logged-in user profile
 userRouter.get('/getUser', verifyToken, getUser); // Test Successful
-userRouter.patch('/updateUser', verifyToken, profilePic.single('profilePicture'), updateProfile); // Test Successful
-userRouter.delete('/deleteUser', verifyToken, deleteProfile); // Test Successful
+// Get another user's profile by ID
+userRouter.get("/getUser/:id", verifyToken, getUserById);
+// Get all users with optional filtering
+userRouter.get("/getUsers", verifyToken, getAllUsers);
+//Patch and delete
+userRouter.patch('/updateUser/:id', verifyToken, profilePic.single('profilePicture'), updateProfile); // Test Successful
+userRouter.delete('/deleteUser/:id', verifyToken, deleteProfile); // Test Successful
 
 // Follow/Unfollow routes
 userRouter.patch('/follow', verifyToken, followUser); // Follow a user
