@@ -14,7 +14,9 @@ import {
     deleteProfile,
     followUser,       // Import followUser function
     unfollowUser      // Import unfollowUser function
-} from '../controllers/userController.mjs';
+} from "../controllers/usercontroller.mjs";
+
+
 import { verifyToken } from '../middlewares/auth.mjs';
 
 const userRouter = Router();
