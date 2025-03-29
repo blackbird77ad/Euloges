@@ -4,10 +4,11 @@ export const userSignUpValidator = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
     name: Joi.string().min(2).max(100).pattern(/^[a-zA-Z\s]+$/).trim().required(),
-    dateOfBirth: Joi.date().iso().required(), // ISO format for date
+    dateOfBirth: Joi.date().required(), // ISO format for date
     profilePicture: Joi.string().optional(),
     role: Joi.string()
         .valid("bereaved", "admin")
+
 });
 
 export const userSignInValidator = Joi.object({

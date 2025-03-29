@@ -40,6 +40,7 @@ export const userSignup = async (req, res, next) => {
         const newUser = await UserModel.create({
             ...value,
             password: hashedPassword,
+            profilePicture: req.file ? req.file.path : null,
         });
 
         //Create a new dashboard for the user
