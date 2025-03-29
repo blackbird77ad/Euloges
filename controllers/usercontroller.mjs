@@ -246,13 +246,19 @@ export const updateProfile = async (req, res, next) => {
          // Find and update user, exclude password from response
          const updatedUser = await UserModel.findByIdAndUpdate(
              req.auth.id,
-             value,
              { new: true, runValidators: true }
          ).select("-password");
 
          if (!updatedUser) {
              return res.status(404).json("User not found!");
          }
+
+
+         // **Handle Image Upload**
+         if (req.file) {
+             updatedUser.profilePicture = `/uploads/${req.file.filename}`; // Save image path
+         }
+
 
          // Store updated time for reference
          const UpdatedTime = new Date().toLocaleString();
