@@ -35,7 +35,7 @@ userRouter.get("/getUser/:id", verifyToken, getUserById);
 // Get all users with optional filtering
 userRouter.get("/getUsers", verifyToken, getAllUsers);
 //Patch and delete
-userRouter.patch('/updateUser/:id', verifyToken, uploadProfilePicture.single("image"), updateProfile); // Test Successful
+userRouter.patch('/updateUser/:id', verifyToken, uploadProfilePicture.single("profilePicture"), updateProfile); // Test Successful
 userRouter.delete('/deleteUser/:id', verifyToken, deleteProfile); // Test Successful
 
 // Follow/Unfollow routes
