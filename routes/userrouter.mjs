@@ -1,7 +1,10 @@
 // External Package imports
 import { Router } from 'express';
 //cloudinary storage
-import {uploadProfilePicture} from "../config/cloudinary.mjs";
+import {
+    uploadProfilePicture,
+    uploadProfileAndCoverMiddleware,
+} from "../config/cloudinary.mjs";
 
 // Internal variables imports
 import {
@@ -23,7 +26,7 @@ import { verifyToken } from '../middlewares/auth.mjs';
 const userRouter = Router();
 
 // User authentication routes
-userRouter.post('/signup',uploadProfilePicture.single("profilePicture"), userSignup); // Test Successful
+userRouter.post('/signup',uploadProfileAndCoverMiddleware, userSignup); // Test Successful
 userRouter.post('/login',  userSignIn); // Test Successful
 userRouter.post('/logout', userLogOut); // Test Successful
 
@@ -35,7 +38,12 @@ userRouter.get("/getUser/:id", verifyToken, getUserById);
 // Get all users with optional filtering
 userRouter.get("/getUsers", verifyToken, getAllUsers);
 //Patch and delete
-userRouter.patch('/updateUser/:id', verifyToken, uploadProfilePicture.single("profilePicture"), updateProfile); // Test Successful
+userRouter.patch(
+    "/updateUser/:id",
+    verifyToken,
+    uploadProfileAndCoverMiddleware, // cover photo and profile picture
+    updateProfile
+); // Test Successful
 userRouter.delete('/deleteUser/:id', verifyToken, deleteProfile); // Test Successful
 
 // Follow/Unfollow routes

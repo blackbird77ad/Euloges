@@ -21,8 +21,19 @@ const getStorage = (folderName) =>
         },
     });
 
+// Multer middleware for handling profile and cover photo uploads
+const uploadProfileAndCover = multer({
+    storage: getStorage("profile_pictures"), // Store both in "profile_pictures"
+});
+
+// Middleware to handle both profilePicture and coverPhoto
+const uploadProfileAndCoverMiddleware = uploadProfileAndCover.fields([
+    { name: "profilePicture", maxCount: 1 },
+    { name: "coverPhoto", maxCount: 1 },
+]);
+
 const uploadProfilePicture = multer({ storage: getStorage("profile_pictures") });
 const uploadPost = multer({ storage: getStorage("posts") });
 const uploadAdvert = multer({ storage: getStorage("ads") });
 const uploadMessage = multer({ storage: getStorage("ads") });
-export { uploadProfilePicture, uploadPost, uploadAdvert, cloudinary };
+export { uploadProfilePicture, uploadPost, uploadAdvert, uploadProfileAndCover, uploadProfileAndCoverMiddleware, cloudinary };

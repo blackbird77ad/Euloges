@@ -40,7 +40,8 @@ export const userSignup = async (req, res, next) => {
         const newUser = await UserModel.create({
             ...value,
             password: hashedPassword,
-            profilePicture: req.file ? req.file.path : null,
+            profilePicture: req.files?.profilePicture ? req.files.profilePicture[0].path : null,
+            coverPhoto: req.files?.coverPhoto ? req.files.coverPhoto[0].path : null,
         });
 
         //Create a new dashboard for the user
@@ -253,12 +254,15 @@ export const updateProfile = async (req, res, next) => {
              return res.status(404).json("User not found!");
          }
 
-
-         // **Handle Image Upload**
-         if (req.file) {
-             updatedUser.profilePicture = `/uploads/${req.file.filename}`; // Save image path
+         // Handle Profile Picture Upload
+         if (req.files && req.files.profilePicture) {
+             updatedUser.profilePicture = req.files.profilePicture[0].path; // Cloudinary stores URLs in `path`
          }
 
+         // Handle Cover Photo Upload
+         if (req.files && req.files.coverPhoto) {
+             updatedUser.coverPhoto = req.files.coverPhoto[0].path;
+         }
 
          // Store updated time for reference
          const UpdatedTime = new Date().toLocaleString();
