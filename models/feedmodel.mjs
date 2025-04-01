@@ -26,7 +26,7 @@ const feedSchema = new Schema(
         music: [
             {
                 url: { type: String, required: true },
-                addedBy: { type: Types.ObjectId, ref: "User", unique: true },
+               addedBy: { type: Types.ObjectId, ref: "User" },
                 uploadedAt: { type: Date, default: Date.now },
                 duration: { type: Number, required: true, max: 90 },
             },

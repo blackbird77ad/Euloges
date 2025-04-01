@@ -13,6 +13,7 @@ export const postFeed  = async (req, res, next) => {
         const newPost = await FeedModel.create({
             ...value,
             user: req.auth.id,
+            uploadUrl: req.file ? req.file.path : null,
         })
         //respond to user request
         res.status(201).json({
@@ -103,9 +104,12 @@ export const updateFeed = async (req, res, next) => {
 
         // Update the feed if it belongs to the authenticated user
         const updatedFeed = await FeedModel.findOneAndUpdate(
-            { _id: req.params.id, user: req.auth.id }, // Correct query
-            { ...req.body }, // Update fields
-            { new: true } // Return the updated document
+            { _id: req.params.id, user: req.auth.id }, // Find post by ID & authenticated user
+            {
+                ...req.body, // Update other fields
+                uploadUrl: req.file ? req.file.path : null,
+            },
+            { new: true } // Return updated document
         );
 
         // If feed is not found, return an error
