@@ -2,61 +2,73 @@ import {FeedModel} from "../models/feedmodel.mjs";
 import {UserModel} from "../models/usermodel.mjs";
 import {postFeedValidator, updateFeedValidator} from "../validators/feedvalidator.mjs";
 
-//ADD feed||Post
-export const postFeed  = async (req, res, next) => {
-    //validate request
+// ADD feed || Post
+export const postFeed = async (req, res, next) => {
     try {
-        const {error, value} = postFeedValidator.validate(req.body);
+        // Validate request
+        const { error, value } = postFeedValidator.validate(req.body);
         if (error) {
-            return res.status(422).json({error: error.details[0].message});
+            return res.status(422).json({ error: error.details[0].message });
         }
-        //save feed to Database
+
+        // Ensure Cloudinary URL is correctly assigned
+        const fileUrl = req.file?.path || req.file?.secure_url || null;
+
+        // Save feed to Database
         const newPost = await FeedModel.create({
             ...value,
             user: req.auth.id,
-            uploadUrl: req.file ? req.file.path : null,
-        })
+            uploadUrl: fileUrl, // Ensure correct Cloudinary URL is saved
+        });
 
         // Update the user's feed array to include this post
         await UserModel.findByIdAndUpdate(req.auth.id, {
-            $push: { feed: newPost.id }
+            $push: { feed: newPost.id },
         });
 
-        //respond to user request
+        // Respond to user request
         res.status(201).json({
-            message: 'Your post has been created successfully.',
-            post: newPost
-        })
-    }
-    catch (error) {
+            message: "Your post has been created successfully.",
+            post: newPost,
+        });
+    } catch (error) {
+        // console.error("Error in postFeed:", error);// debug
         next(error);
     }
-}
+};
 
 
 
-//GET feed||Post(s)
+// GET feed||Post(s)
 export const getFeeds = async (req, res, next) => {
     try {
-        const {filter = "{}", sort = "{}", limit = 10, skip = 0, category} = req.query;
-        //filter
+        const { filter = "{}", sort = "{}", limit = 10, skip = 0, category } = req.query;
+
+        // Parse the filters and sort parameters
         const userFilter = JSON.parse(filter);
-        if (category) {userFilter.category = category;}
+        if (category) {
+            userFilter.category = category;
+        }
 
-        //fetch from database
+        // Fetch feeds from the database
         const userFeed = await FeedModel
-            .find(JSON.parse(filter))
-            .sort(JSON.parse(sort))
-            .limit(parseInt(limit))// ensures the limit is an integer
-            .skip(parseInt(skip))// ensures the skip is also an integer
+            .find(userFilter)  // Apply user-defined filter
+            .populate({
+                path: 'user',  // Populate the user field in each post
+                model: 'User',
+                select: 'name profilePicture',  // Select only necessary fields from User
+            })
+            .sort(JSON.parse(sort))  // Apply custom sorting, such as sorting by most recent
+            .limit(parseInt(limit))  // Limit the number of results
+            .skip(parseInt(skip));  // Skip for pagination
 
-        //Response to the request
-        return res.status(200).json(userFeed)
-    }// end of try, beginning of catch
-    catch (error) {
+        // Response to the request with populated user data in the posts
+        return res.status(200).json(userFeed);
+    } catch (error) {
         next(error);
     }
-}
+};
+
 
 
 //Count feed||Post(S)

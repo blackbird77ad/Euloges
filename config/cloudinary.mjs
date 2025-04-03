@@ -16,8 +16,8 @@ const getStorage = (folderName) =>
         cloudinary,
         params: {
             folder: folderName, // Dynamic folder name
-            allowed_formats: ["jpg", "png", "jpeg"],
-            transformation: [{ width: 500, height: 500, crop: "limit" }],
+            allowed_formats: ["jpg", "png", "jpeg", "mp4", "pdf"],
+            // transformation: [{ width: 500, height: 500, crop: "limit" }],
         },
     });
 
