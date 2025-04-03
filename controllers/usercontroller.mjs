@@ -295,18 +295,18 @@ export const updateProfile = async (req, res, next) => {
 }
 export const deleteProfile = async (req, res, next) => {
     try {
-        // ✅ Check if user exists
+        //  Check if user exists
         const user = await UserModel.findById(req.auth?.id);
         if (!user) {
             return res.status(404).json({ message: "Action Denied! User not found!" });
         }
 
-        // ✅ Store email & name before deletion
+        // Store email & name before deletion
         const userEmail = user.email;
         const userName = user.name;
         const deleteTime = new Date().toLocaleString();
 
-        // ✅ Delete the user
+        //  Delete the user
         const deletedUser = await UserModel.findByIdAndDelete(req.auth.id);
         if (!deletedUser) {
             return res.status(404).json({ message: "User not found or already deleted!" });
