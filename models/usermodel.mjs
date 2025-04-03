@@ -9,9 +9,9 @@ const userSchema = new Schema({
     dateOfBirth: { type: Date, default: Date.now },
     profilePicture: { type: String },
     coverPhoto: { type: String, default: "" },
-    message: { type: Types.ObjectId, ref: 'Message' },
+    message: [{ type: Types.ObjectId, ref: 'Message' }],
     notification: { type: Types.ObjectId, ref: 'Notification' },
-    feed: { type: Types.ObjectId, ref: 'Feed' },
+    feed: [{ type: Types.ObjectId, ref: "Feed" }],
     role: { type: String, enum: ['bereaved', 'admin'], default: 'bereaved', required: true },
     dashboard: { type: Schema.Types.ObjectId, ref: 'Dashboard' },
     followers: [{ type: Types.ObjectId, ref: 'User' }], // Array of User IDs that follow this user

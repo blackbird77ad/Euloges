@@ -1,4 +1,5 @@
 import {FeedModel} from "../models/feedmodel.mjs";
+import {UserModel} from "../models/usermodel.mjs";
 import {postFeedValidator, updateFeedValidator} from "../validators/feedvalidator.mjs";
 
 //ADD feed||Post
@@ -15,6 +16,12 @@ export const postFeed  = async (req, res, next) => {
             user: req.auth.id,
             uploadUrl: req.file ? req.file.path : null,
         })
+
+        // Update the user's feed array to include this post
+        await UserModel.findByIdAndUpdate(req.auth.id, {
+            $push: { feed: newPost.id }
+        });
+
         //respond to user request
         res.status(201).json({
             message: 'Your post has been created successfully.',

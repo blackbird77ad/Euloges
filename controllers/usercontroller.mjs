@@ -102,7 +102,7 @@ export const userSignIn = async (req, res, next) => {
            res.status(404).json("User not found");
        }
        // check if value.password match db password
-        const correctPassword = bcrypt.compare(value.password, user.password);
+        const correctPassword = await bcrypt.compare(value.password, user.password);
        if (!correctPassword) {
            res.status(404).json("Invalid User Credentials");
        }
