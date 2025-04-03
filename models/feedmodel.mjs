@@ -18,14 +18,14 @@ const feedSchema = new Schema(
         uploadType: {
             type: String,
             enum: ["image", "video", "gif", "text"],
-            required: true,
+            // required: true,
         },
-        uploadUrl: { type: String, default: "" },
+        uploadUrl: { type: String},
 
         // Music Uploads (One per user per post, max 1.5 mins)
         music: [
             {
-                url: { type: String, required: true },
+                url: { type: String },
                addedBy: { type: Types.ObjectId, ref: "User" },
                 uploadedAt: { type: Date, default: Date.now },
                 duration: { type: Number, required: true, max: 90 },
