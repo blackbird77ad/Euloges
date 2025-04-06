@@ -15,7 +15,7 @@ export const postFeedValidator = Joi.object({
     content: Joi.string().trim(),
 
     // Validate uploadType (enum: "image", "video", "gif", "text")
-    uploadType: Joi.string().valid("image", "video", "gif", "text").required(),
+    // uploadType: Joi.string().valid("image", "video", "gif", "text").required(),
 
     // Validate uploadUrl (string, optional)
     uploadUrl: Joi.string().allow(""),

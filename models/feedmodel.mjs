@@ -15,11 +15,11 @@ const feedSchema = new Schema(
 
         // Content details
         content: { type: String, trim: true },
-        uploadType: {
-            type: String,
-            enum: ["image", "video", "gif", "text"],
-            // required: true,
-        },
+        // uploadType: {
+        //     type: String,
+        //     enum: ["image", "video", "gif", "text"],
+        //     // required: true,
+        // },
         uploadUrl: { type: String},
 
         // Music Uploads (One per user per post, max 1.5 mins)

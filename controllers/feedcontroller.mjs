@@ -15,9 +15,9 @@ export const postFeed = async (req, res, next) => {
         const fileUrl = req.file ? req.file.path : "";
         // Ensure the correct URL is assigned
 
-        if (!fileUrl) {
-            return res.status(400).json({ error: "File upload failed. No URL received from Cloudinary." });
-        }
+        // if (!fileUrl) {
+        //     return res.status(400).json({ error: "File upload failed. No URL received from Cloudinary." });
+        // }
         //console.log("File URL before saving to db:", fileUrl);
 
         // Save feed to Database
