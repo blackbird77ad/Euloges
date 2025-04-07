@@ -5,6 +5,9 @@ import {postFeedValidator, updateFeedValidator} from "../validators/feedvalidato
 // ADD feed || Post
 export const postFeed = async (req, res, next) => {
     try {
+
+        //console.log("Request body:", req.body); // Check what's coming in the body
+        //console.log("Uploaded file:", req.file); // Check the uploaded file info
         // Validate request
         const { error, value } = postFeedValidator.validate(req.body);
         if (error) {
@@ -12,7 +15,7 @@ export const postFeed = async (req, res, next) => {
         }
         // console.log("Uploaded File:", req.file);
 
-        const fileUrl = req.file ? req.file.path : "";
+        const fileUrl = req.file?.path || req.body.uploadUrl || "";
         // Ensure the correct URL is assigned
 
         // if (!fileUrl) {
@@ -34,7 +37,7 @@ export const postFeed = async (req, res, next) => {
 
         // Respond to user request
         res.status(201).json({
-            message: "Your post has been created successfully.",
+            message: "Post created successfully.",
             post: newPost,
         });
     } catch (error) {
