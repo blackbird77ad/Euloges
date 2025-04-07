@@ -34,15 +34,6 @@ export const postFeed = async (req, res, next) => {
         await UserModel.findByIdAndUpdate(req.auth.id, {
             $push: { feed: newPost.id },
         });
-
-        // Populate user data before sending response
-        const populatedPost = await FeedModel.findById(newPost.id)
-            .populate({
-                path: 'user',
-                model: 'User',
-                select: 'name profilePicture' // Choose needed fields
-            })
-
         // Respond to user request
         res.status(201).json({
             message: "Post created successfully.",
@@ -59,32 +50,36 @@ export const postFeed = async (req, res, next) => {
 // GET feed||Post(s)
 export const getFeeds = async (req, res, next) => {
     try {
-        const { filter = "{}", sort = "{}", limit = 10, skip = 0, category } = req.query;
+        const { filter = "{}", sort = "{}", limit, skip = 0, category } = req.query;
 
-        // Parse the filters and sort parameters
         const userFilter = JSON.parse(filter);
         if (category) {
             userFilter.category = category;
         }
 
-        // Fetch feeds from the database
-        const userFeed = await FeedModel
-            .find(userFilter)  // Apply user-defined filter
+        // Build the query step-by-step
+        let query = FeedModel.find(userFilter)
             .populate({
-                path: 'user',  // Populate the user field in each post
+                path: 'user',
                 model: 'User',
-                select: 'name profilePicture dateOfBirth role followers following' // necessary fields from User
+                select: 'name profilePicture dateOfBirth role followers following'
             })
-            .sort(JSON.parse(sort))  // Apply custom sorting, such as sorting by most recent
-            .limit(parseInt(limit))  // Limit the number of results
-            .skip(parseInt(skip));  // Skip for pagination
+            .sort(JSON.parse(sort))
+            .skip(parseInt(skip));
 
-        // Response to the request with populated user data in the posts
+        // Only apply limit if provided
+        if (limit) {
+            query = query.limit(parseInt(limit));
+        }
+
+        const userFeed = await query;
+
         return res.status(200).json(userFeed);
     } catch (error) {
         next(error);
     }
 };
+
 
 
 
