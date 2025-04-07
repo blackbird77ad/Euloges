@@ -35,6 +35,14 @@ export const postFeed = async (req, res, next) => {
             $push: { feed: newPost.id },
         });
 
+        // Populate user data before sending response
+        const populatedPost = await FeedModel.findById(newPost.id)
+            .populate({
+                path: 'user',
+                model: 'User',
+                select: 'name profilePicture' // Choose needed fields
+            })
+
         // Respond to user request
         res.status(201).json({
             message: "Post created successfully.",
@@ -65,7 +73,7 @@ export const getFeeds = async (req, res, next) => {
             .populate({
                 path: 'user',  // Populate the user field in each post
                 model: 'User',
-                select: 'name profilePicture',  // Select only necessary fields from User
+                select: 'name profilePicture dateOfBirth role followers following' // necessary fields from User
             })
             .sort(JSON.parse(sort))  // Apply custom sorting, such as sorting by most recent
             .limit(parseInt(limit))  // Limit the number of results
@@ -80,7 +88,7 @@ export const getFeeds = async (req, res, next) => {
 
 
 
-//Count feed||Post(S)
+//Count feeds||Posts
 export const countFeed = async (req, res, next) => {
     try {
         const { filter = "{}" } = req.query;
