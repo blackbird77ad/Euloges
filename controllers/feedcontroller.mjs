@@ -34,17 +34,43 @@ export const postFeed = async (req, res, next) => {
         await UserModel.findByIdAndUpdate(req.auth.id, {
             $push: { feed: newPost.id },
         });
-        // Respond to user request
+        // Re-fetch the post with populated user data
+        const populatedPost = await FeedModel.findById(newPost._id).populate({
+            path: 'user',
+            model: 'User',
+            select: 'name profilePicture dateOfBirth role followers following'
+        });
+
         res.status(201).json({
             message: "Post created successfully.",
-            post: newPost,
+            post: populatedPost,
         });
     } catch (error) {
-        // console.error("Error in postFeed:", error);// debug
         next(error);
     }
 };
 
+//GetFeed
+export const getUserFeed = async (req, res, next) => {
+    try {
+        const userId = req.auth.id;
+
+        const feeds = await FeedModel.find({ user: userId })
+            .populate({
+                path: 'user',
+                model: 'User',
+                select: 'name profilePicture dateOfBirth role followers following'
+            })
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            message: "User feeds fetched successfully.",
+            feeds,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 
 
 // GET feed||Post(s)
