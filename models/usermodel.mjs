@@ -8,7 +8,7 @@ const userSchema = new Schema({
     name: { type: String },
     dateOfBirth: { type: Date, default: Date.now },
     profilePicture: { type: String },
-    coverPhoto: { type: String, default: "" },
+    coverPhoto: { type: String},
     message: [{ type: Types.ObjectId, ref: 'Message' }],
     notification: { type: Types.ObjectId, ref: 'Notification' },
     feed: [{ type: Types.ObjectId, ref: "Feed" }],

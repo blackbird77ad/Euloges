@@ -159,12 +159,15 @@ export const updateFeed = async (req, res, next) => {
             return res.status(422).json({ error: error.details[0].message });
         }
 
+        const fileUrl = req.file?.path || req.body.uploadUrl || "";
+        // Ensure the correct URL is assigned
+
         // Update the feed if it belongs to the authenticated user
         const updatedFeed = await FeedModel.findOneAndUpdate(
             { _id: req.params.id, user: req.auth.id }, // Find post by ID & authenticated user
             {
-                ...req.body, // Update other fields
-                uploadUrl: req.file ? req.file.path : null,
+                ...req.body,
+                uploadUrl: fileUrl,
             },
             { new: true } // Return updated document
         );
