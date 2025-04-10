@@ -5,7 +5,8 @@ export const userSignUpValidator = Joi.object({
     password: Joi.string().min(8).required(),
     name: Joi.string().min(2).max(100).pattern(/^[a-zA-Z\s]+$/).trim().required(),
     dateOfBirth: Joi.date().required(), // ISO format for date
-    profilePicture: Joi.string().optional(),
+    profilePicture: Joi.string(),
+    coverPhoto: Joi.string(),
     role: Joi.string()
         .valid("bereaved", "admin")
 
@@ -25,6 +26,7 @@ export const userUpdateValidator = Joi.object({
     name: Joi.string().min(2).max(100).pattern(/^[a-zA-Z\s]+$/).trim(),
     dateOfBirth: Joi.date(),
     profilePicture: Joi.string(),
+    coverPhoto: Joi.string(),
     message: Joi.string(),
     notification: Joi.string(),
     role: Joi.string()

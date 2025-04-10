@@ -237,62 +237,63 @@ export const getAllUsers = async (req, res, next) => {
 
 //Update User Information|Profile
 export const updateProfile = async (req, res, next) => {
-     try {
-         //Validate the post method | req.body
-         const { error, value } = userUpdateValidator.validate(req.body);
-         if (error) {
-             return res.status(422).json({ error: error.details[0].message });
-         }
+    try {
+        // Validate req.body
+        const { error, value } = userUpdateValidator.validate(req.body);
+        if (error) {
+            return res.status(422).json({ error: error.details[0].message });
+        }
 
-         // Find and update user, exclude password from response
-         const updatedUser = await UserModel.findByIdAndUpdate(
-             req.auth.id,
-             { new: true, runValidators: true }
-         ).select("-password");
+        // Smart file handling
+        const profilePictureUrl = req.files?.profilePicture?.[0]?.path || req.body.profilePicture || "";
+        const coverPhotoUrl = req.files?.coverPhoto?.[0]?.path || req.body.coverPhoto || "";
 
-         if (!updatedUser) {
-             return res.status(404).json("User not found!");
-         }
+        // Prepare update data
+        const updateData = {
+            ...value,
+            profilePicture: profilePictureUrl,
+            coverPhoto: coverPhotoUrl,
+        };
 
-         // Handle Profile Picture Upload
-         if (req.files && req.files.profilePicture) {
-             updatedUser.profilePicture = req.files.profilePicture[0].path; // Cloudinary stores URLs in `path`
-         }
+        // Update user
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            req.auth.id,
+            updateData,
+            { new: true, runValidators: true }
+        ).select("-password");
 
-         // Handle Cover Photo Upload
-         if (req.files && req.files.coverPhoto) {
-             updatedUser.coverPhoto = req.files.coverPhoto[0].path;
-         }
+        if (!updatedUser) {
+            return res.status(404).json({ error: "User not found!" });
+        }
 
-         // Store updated time for reference
-         const UpdatedTime = new Date().toLocaleString();
+        // Prepare and send email
+        const UpdatedTime = new Date().toLocaleString();
+        const emailContent = `
+            <p>Dear ${updatedUser.name},</p>
+            <p>Your profile was updated at <strong>${UpdatedTime}</strong>.</p>
+            <p>If this wasn’t you, please contact support.</p>
+            <p style="color: #1E90FF;">Thank you for choosing EULOGES!</p>
+        `;
 
-         //Nodemailer function to update user about this action:
-         const emailContent = `
-         <p>Dear ${value.name},</p>\n
-         
-         <p>We realised that your profile has been updated at ${UpdatedTime}.
-         and reach out to our technical Support team
-         </p>
-         <p style="color: #ffffff;">Thank you for choosing EULOGES. We are excited to have you on board!</p>
-        </p>
-         `
+        await mailTransporter.sendMail({
+            from: 'EULOGES <byourself77by@gmail.com>',
+            to: updatedUser.email,
+            subject: 'PROFILE UPDATE CONFIRMATION',
+            html: userUpdateEmailTemplate(emailContent)
+        });
 
-         // Send the registration email
-         await mailTransporter.sendMail({
-             from: 'EULOGES <byourself77by@gmail.com>',
-             to: value.email,
-             subject: 'PROFILE UPDATE CONFIRMATION',
-             html: userUpdateEmailTemplate(emailContent)
-         });
+        // Send response
+        return res.status(200).json({
+            message: "Profile updated successfully!",
+            user: updatedUser
+        });
 
-         //respond to user update request
-         return res.status(200).json(updatedUser);
-     }
-     catch (error) {
-         next(error);
-     }
-}
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 export const deleteProfile = async (req, res, next) => {
     try {
         //  Check if user exists
