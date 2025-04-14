@@ -334,37 +334,143 @@ export const deleteProfile = async (req, res, next) => {
     }
 };
 
-
 // Follow a user
 export const followUser = async (req, res, next) => {
     const { userIdToFollow } = req.body;
+    const myId = req.auth.id;
 
     try {
-        // Add the user to the following list of the requester
-        await UserModel.findByIdAndUpdate(req.auth.id, { $addToSet: { following: userIdToFollow } });
+        // Check if user is trying to follow themselves
+        if (myId.toString() === userIdToFollow.toString()) {
+            return res.status(400).json({ message: "You cannot follow yourself" });
+        }
 
-        // Add the requester to the followers list of the followed user
-        await UserModel.findByIdAndUpdate(userIdToFollow, { $addToSet: { followers: req.auth.id } });
+        // Check if user exists
+        const userToFollow = await UserModel.findById(userIdToFollow);
+        if (!userToFollow) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-        res.status(200).json({ message: 'You are now following this user.' });
+        // Check if already following
+        const currentUser = await UserModel.findById(myId);
+        if (currentUser.following.includes(userIdToFollow)) {
+            return res.status(400).json({ message: "You are already following this user" });
+        }
+
+        // Add to following list of requester
+        await UserModel.findByIdAndUpdate(myId, {
+            $addToSet: { following: userIdToFollow }
+        });
+
+        // Add to followers list of the followed user and populate necessary fields
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            userIdToFollow,
+            { $addToSet: { followers: myId } },
+            { new: true }
+        )
+            .populate('followers', 'name profilePicture')
+            .populate('following', 'name profilePicture')
+            .populate('feed', '_id');
+
+        // Get updated counts for the current user (who initiated the follow)
+        const updatedCurrentUser = await UserModel.findById(myId)
+            .populate('following', 'name profilePicture')
+            .populate('followers', 'name profilePicture');
+
+        res.status(200).json({
+            message: 'You are now following this user.',
+            followedUser: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                profilePicture: updatedUser.profilePicture,
+                followers: updatedUser.followers,
+                following: updatedUser.following,
+                totalFollowers: updatedUser.followers.length,
+                totalFollowing: updatedUser.following.length,
+                totalPosts: updatedUser.feed.length
+            },
+            currentUser: {
+                id: updatedCurrentUser._id,
+                name: updatedCurrentUser.name,
+                profilePicture: updatedCurrentUser.profilePicture,
+                followers: updatedCurrentUser.followers,
+                following: updatedCurrentUser.following,
+                totalFollowers: updatedCurrentUser.followers.length,
+                totalFollowing: updatedCurrentUser.following.length
+            }
+        });
     } catch (error) {
         next(error);
     }
 };
 
-// Unfollow a user
+
 export const unfollowUser = async (req, res, next) => {
     const { userIdToUnfollow } = req.body;
+    const myId = req.auth.id;
+
+    // Ensure userIdToUnfollow is provided
+    if (!userIdToUnfollow) {
+        return res.status(400).json({ message: "userIdToUnfollow is required" });
+    }
 
     try {
-        // Remove the user from the following list of the requester
-        await UserModel.findByIdAndUpdate(req.auth.id, { $pull: { following: userIdToUnfollow } });
+        // Check if user exists
+        const userToUnfollow = await UserModel.findById(userIdToUnfollow);
+        if (!userToUnfollow) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-        // Remove the requester from the followers list of the unfollowed user
-        await UserModel.findByIdAndUpdate(userIdToUnfollow, { $pull: { followers: req.auth.id } });
+        // Check if the current user is following the target user
+        const currentUser = await UserModel.findById(myId);
+        if (!currentUser.following.includes(userIdToUnfollow)) {
+            return res.status(400).json({ message: "You are not following this user" });
+        }
 
-        res.status(200).json({ message: 'You have unfollowed this user.' });
+        // Remove from the current user's following list
+        await UserModel.findByIdAndUpdate(myId, {
+            $pull: { following: userIdToUnfollow }
+        });
+
+        // Remove from the target user's followers list
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            userIdToUnfollow,
+            { $pull: { followers: myId } },
+            { new: true }
+        )
+            .populate('followers', 'name profilePicture')
+            .populate('following', 'name profilePicture')
+            .populate('feed', '_id');
+
+        // Get the updated current user data
+        const updatedCurrentUser = await UserModel.findById(myId)
+            .populate('following', 'name profilePicture')
+            .populate('followers', 'name profilePicture');
+
+        // Send the response
+        return res.status(200).json({
+            message: 'You have unfollowed this user.',
+            unfollowedUser: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                profilePicture: updatedUser.profilePicture,
+                followers: updatedUser.followers,
+                following: updatedUser.following,
+                totalFollowers: updatedUser.followers.length,
+                totalFollowing: updatedUser.following.length,
+                totalPosts: updatedUser.feed.length
+            },
+            currentUser: {
+                id: updatedCurrentUser._id,
+                name: updatedCurrentUser.name,
+                profilePicture: updatedCurrentUser.profilePicture,
+                followers: updatedCurrentUser.followers,
+                following: updatedCurrentUser.following,
+                totalFollowers: updatedCurrentUser.followers.length,
+                totalFollowing: updatedCurrentUser.following.length
+            }
+        });
     } catch (error) {
-        next(error);
+        next(error); // Pass the error to the error handling middleware
     }
 };
