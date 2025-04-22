@@ -92,21 +92,21 @@ export const userSignup = async (req, res, next) => {
 export const userSignIn = async (req, res, next) => {
     try{
         //validate login user request
-       const {error, value} = userSignInValidator.validate(req.body);
-       if (error) {
-           res.status(400).json({error: error.details});
-       }
-       //Find if User exist already
+        const {error, value} = userSignInValidator.validate(req.body);
+        if (error) {
+            res.status(400).json({error: error.details});
+        }
+        //Find if User exist already
         const user = await UserModel.findOne({email: value.email});
-       if (!user) {
-           res.status(404).json("User not found");
-       }
-       // check if value.password match db password
+        if (!user) {
+            res.status(404).json("User not found");
+        }
+        // check if value.password match db password
         const correctPassword = await bcrypt.compare(value.password, user.password);
-       if (!correctPassword) {
-           res.status(404).json("Invalid User Credentials");
-       }
-       // if value.password matches db user password, enable session|token
+        if (!correctPassword) {
+            res.status(404).json("Invalid User Credentials");
+        }
+        // if value.password matches db user password, enable session|token
         const session = jwt.sign(
             {
                 id: user.id, email: user.email

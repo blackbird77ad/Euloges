@@ -7,7 +7,11 @@ import {
     getUserFeed,
     countFeed,
     updateFeed,
-    deleteFeed} from "../controllers/feedcontroller.mjs";
+    deleteFeed,
+    viewFeed,
+    toggleLike,
+    addComment
+} from "../controllers/feedcontroller.mjs";
 import {uploadPost} from "../config/cloudinary.mjs";
 
 const feedRouter = Router();
@@ -21,6 +25,10 @@ feedRouter.patch("/update-post/:id", verifyToken, uploadPost.single("uploadUrl")
 feedRouter.delete("/delete-post/:id", verifyToken, deleteFeed);
 feedRouter.get("/count-post", verifyToken, countFeed);
 
+//global actions
+feedRouter.get("/feed/:Id/views", verifyToken, viewFeed);
+feedRouter.patch("/feed/:Id/like", verifyToken, toggleLike);
+feedRouter.patch("feef/:Id/comments", verifyToken, addComment);
 
 //export router and use in index.mjs
 export default feedRouter;

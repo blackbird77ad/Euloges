@@ -8,7 +8,8 @@ const feedSchema = new Schema(
 
         // Interactions: Store multiple user IDs instead of single ones
         likes: [{ type: Types.ObjectId, ref: "User" }],
-        views: [{ type: Types.ObjectId, ref: "User" }],
+        views: { type: Number, default: 0 },
+        viewers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         tributes: [{ type: Types.ObjectId, ref: "User" }],
         condolences: [{ type: Types.ObjectId, ref: "User" }],
         donations: [{ type: Types.ObjectId, ref: "User" }],
