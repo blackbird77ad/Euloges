@@ -23,5 +23,19 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
-  }
+  },
+  "name": "backend-projects",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackbird77ad/Euloges.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blackbird77ad/Euloges/issues"
+  },
+  "homepage": "https://github.com/blackbird77ad/Euloges#readme",
+  "description": ""
 }
