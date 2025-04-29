@@ -35,5 +35,5 @@ const uploadProfileAndCoverMiddleware = uploadProfileAndCover.fields([
 const uploadProfilePicture = multer({ storage: getStorage("profile_pictures") });
 const uploadPost = multer({ storage: getStorage("posts") });
 const uploadAdvert = multer({ storage: getStorage("ads") });
-const uploadMessage = multer({ storage: getStorage("ads") });
-export { uploadProfilePicture, uploadPost, uploadAdvert, uploadProfileAndCover, uploadProfileAndCoverMiddleware, cloudinary };
+const uploadMessage = multer({ storage: getStorage("Messages") });
+export { uploadProfilePicture,uploadMessage, uploadPost, uploadAdvert, uploadProfileAndCover, uploadProfileAndCoverMiddleware, cloudinary };

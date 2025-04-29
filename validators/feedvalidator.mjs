@@ -6,7 +6,8 @@ export const postFeedValidator = Joi.object({
 
     // Validate interactions (arrays of ObjectIds)
     likes: Joi.array().items(Joi.string().hex().length(24)),
-    views: Joi.array().items(Joi.string().hex().length(24)),
+    views: Joi.number().default(0),
+    viewers: Joi.array().items(Joi.string().hex().length(24)),
     tributes: Joi.array().items(Joi.string().hex().length(24)),
     condolences: Joi.array().items(Joi.string().hex().length(24)),
     donations: Joi.array().items(Joi.string().hex().length(24)),
@@ -47,7 +48,8 @@ export const updateFeedValidator = Joi.object({
 
     // Validate interactions (arrays of ObjectIds)
     likes: Joi.array().items(Joi.string().hex().length(24)),
-    views: Joi.array().items(Joi.string().hex().length(24)),
+    views: Joi.number().default(0),
+    viewers: Joi.array().items(Joi.string().hex().length(24)),
     tributes: Joi.array().items(Joi.string().hex().length(24)),
     condolences: Joi.array().items(Joi.string().hex().length(24)),
     donations: Joi.array().items(Joi.string().hex().length(24)),

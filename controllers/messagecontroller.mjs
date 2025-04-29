@@ -4,21 +4,26 @@ import {MessageModel} from "../models/messagemodel.mjs";
 //Send message to another user
 export const sendMessage = async (req, res, next) => {
     try {
-        const { sender, receiver, text } = req.body;
-
-        const newMessage = new MessageModel({
-            sender,
-            receiver,
-            text,
-            sendTime: new Date(),
-        });
-
-        await newMessage.save();
-        res.status(201).json(newMessage);
+      const { receiver, text } = req.body;
+  
+      const attachments = req.files?.map(file => file.path);
+  
+      const newMessage = new MessageModel({
+        sender: req.user.id,
+        receiver,
+        text,
+        attachments,
+        sendTime: new Date(),
+      });
+  
+      await newMessage.save();
+  
+      res.status(201).json(newMessage);
     } catch (error) {
-        next(error);
+      next(error);
     }
-};
+  };
+  
 
 //Get messages for a user (both sent & received)
 export const getMessages = async (req, res, next) => {

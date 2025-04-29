@@ -474,3 +474,67 @@ export const unfollowUser = async (req, res, next) => {
         next(error); // Pass the error to the error handling middleware
     }
 };
+
+
+///Get Followers:
+export const getUserFollowers = async (req, res, next) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await UserModel.findById(userId).populate('followers', 'name profilePicture');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const followers = user.followers.map(follower => ({
+            id: follower._id,
+            name: follower.name,
+            profilePicture: follower.profilePicture
+        }));
+
+        return res.status(200).json({
+            userId: user._id,
+            totalFollowers: followers.length,
+            followers
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+//Get Users following:
+export const getUserFollowing = async (req, res, next) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await UserModel.findById(userId)
+            .populate({
+                path: 'following',
+                select: 'name profilePicture following followers'
+            })
+            .lean();
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const following = user.following.map(followed => ({
+            id: followed._id,
+            name: followed.name,
+            profilePicture: followed.profilePicture,
+            totalFollowing: followed.following?.length || 0,
+            totalFollowers: followed.followers?.length || 0
+        }));
+
+        res.status(200).json({
+            userId: user._id,
+            totalFollowing: following.length,
+            following
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+

@@ -200,71 +200,68 @@ export const updateFeed = async (req, res, next) => {
             next(error);
         }
     }
+    
 
     ///// Global action:
-// Register a view on a post
-export const viewFeed = async (req, res, next) => {
-    const { feedId } = req.params;
-    const userId = req.auth.id;
+// Register viewers and view on a post
+export const updateFeedViews = async (req, res, next) => {
+  const { feedId } = req.body;
+  const userId = req.auth.id;
 
-    try {
-        const feed = await FeedModel.findById(feedId);
-
-        if (!feed) return res.status(404).json({ message: "Post not found." });
-
-        if (!feed.viewers.includes(userId)) {
-            feed.viewers.push(userId);
-            feed.views += 1;
-            await feed.save();
-        }
-
-        const populatedFeed = await FeedModel.findById(feedId)
-            .populate({
-                path: 'viewers',
-                select: 'name profilePicture followers following'
-            });
-
-        res.status(200).json({
-            message: "View recorded.",
-            views: populatedFeed.views,
-            viewers: populatedFeed.viewers
-        });
-    } catch (error) {
-        next(error);
+  try {
+    const feed = await FeedModel.findById(feedId);
+    if (!feed) {
+      return res.status(404).json({ message: "Feed not found" });
     }
+
+    // Check if user has already viewed the post
+    const alreadyViewed = feed.viewers.includes(userId);
+    if (!alreadyViewed) {
+      feed.views += 1;
+      feed.viewers.push(userId);
+      await feed.save();
+    }
+
+    // Populate viewer data (optional, depending on what you want to return)
+    const populatedFeed = await FeedModel.findById(feedId)
+      .populate("viewers", "name profilePicture");
+
+    res.status(200).json({
+      message: "View updated",
+      viewsCount: populatedFeed.views,
+      viewers: populatedFeed.viewers,
+    });
+
+  } catch (error) {
+    next(error);
+  }
 };
 
+
+
+
 //like a post logic
-export const toggleLike = async (req, res, next) => {
-    const { feedId } = req.params;
+export const toggleLikeFeed = async (req, res, next) => {
+    const { feedId } = req.body;
     const userId = req.auth.id;
 
     try {
         const feed = await FeedModel.findById(feedId);
 
-        if (!feed) return res.status(404).json({ message: "Post not found." });
+        if (!feed) return res.status(404).json({ message: "Feed not found" });
 
-        const alreadyLiked = feed.likes.includes(userId);
+        const hasLiked = feed.likes.includes(userId);
 
-        if (alreadyLiked) {
+        if (hasLiked) {
             feed.likes.pull(userId);
+            await feed.save();
+            return res.status(200).json({ message: "Feed unliked." });
         } else {
             feed.likes.push(userId);
+            await feed.save();
+            return res.status(200).json({ message: "Feed liked." });
         }
 
-        await feed.save();
-
-        const populatedFeed = await FeedModel.findById(feedId)
-            .populate({
-                path: 'likes',
-                select: 'name profilePicture followers following'
-            });
-
-        res.status(200).json({
-            message: alreadyLiked ? "Post unliked." : "Post liked.",
-            totalLikes: populatedFeed.likes.length,
-            likes: populatedFeed.likes
-        });
     } catch (error) {
         next(error);
     }
@@ -272,35 +269,88 @@ export const toggleLike = async (req, res, next) => {
 
 
 //add comment:
-export const addComment = async (req, res, next) => {
-    const { feedId } = req.params;
+export const addCommentToFeed = async (req, res, next) => {
+    const { feedId, text } = req.body;
     const userId = req.auth.id;
-    const { text } = req.body;
-
-    if (!text?.trim()) {
-        return res.status(400).json({ message: "Comment text is required." });
-    }
 
     try {
         const feed = await FeedModel.findById(feedId);
-        if (!feed) return res.status(404).json({ message: "Post not found." });
 
-        feed.comments.push({ user: userId, text });
+        if (!feed) return res.status(404).json({ message: "Feed not found" });
+
+        feed.comments.push({
+            user: userId,
+            text,
+        });
+
         await feed.save();
 
-        const populatedFeed = await FeedModel.findById(feedId)
-            .populate({
-                path: 'comments.user',
-                select: 'name profilePicture followers following'
-            });
+        res.status(200).json({ message: "Comment added." });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+////GET VIEWS, COMMENT, LIKES
+export const getFeedLikes = async (req, res, next) => {
+    const { feedId } = req.params;
+
+    try {
+        const feed = await FeedModel.findById(feedId).populate("likes", "name profilePicture");
+
+        if (!feed) return res.status(404).json({ message: "Feed not found" });
 
         res.status(200).json({
-            message: "Comment added.",
-            totalComments: populatedFeed.comments.length,
-            comments: populatedFeed.comments
+            totalLikes: feed.likes.length,
+            likes: feed.likes
         });
     } catch (error) {
         next(error);
     }
 };
+
+//Get comment
+export const getFeedComments = async (req, res, next) => {
+    const { feedId } = req.params;
+
+    try {
+        const feed = await FeedModel.findById(feedId).populate("comments.user", "name profilePicture");
+
+        if (!feed) return res.status(404).json({ message: "Feed not found" });
+
+        res.status(200).json({
+            totalComments: feed.comments.length,
+            comments: feed.comments
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+//Get views:
+export const getFeedViewers = async (req, res, next) => {
+    const { feedId } = req.params;
+    const requesterId = req.auth.id;
+
+    try {
+        const feed = await FeedModel.findById(feedId).populate("viewers", "name profilePicture");
+
+        if (!feed) return res.status(404).json({ message: "Feed not found" });
+
+        if (feed.user.toString() !== requesterId) {
+            return res.status(403).json({ message: "Only the post owner can view this." });
+        }
+
+        res.status(200).json({
+            totalViews: feed.views,
+            viewers: feed.viewers
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
 

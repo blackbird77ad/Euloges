@@ -17,7 +17,9 @@ import {
     updateProfile,
     deleteProfile,
     followUser,       // Import followUser function
-    unfollowUser      // Import unfollowUser function
+    unfollowUser,     // Import unfollowUser function
+getUserFollowers,
+    getUserFollowing,
 } from "../controllers/usercontroller.mjs";
 
 
@@ -49,5 +51,10 @@ userRouter.delete('/deleteUser/:id', verifyToken, deleteProfile); // Test Succes
 // Follow/Unfollow routes
 userRouter.patch('/follow', verifyToken, followUser); // Follow a user
 userRouter.patch('/unfollow', verifyToken, unfollowUser); // Unfollow a user
+//Get followers of a user:
+userRouter.get('/users/:userId/followers', verifyToken, getUserFollowers)
+//Get user's following
+userRouter.get('/users/:userId/following', verifyToken, getUserFollowing )
+
 
 export default userRouter;
