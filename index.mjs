@@ -6,9 +6,10 @@ import cors from "cors";
 //internal imports
 import userRouter from "./routes/userrouter.mjs";
 import feedRouter from "./routes/feedrouter.mjs";
-import Dashboardrouter from "./routes/Dashboardrouter.mjs";
 import messageRouter from "./routes/messagerouter.mjs";
+import memorialRouter from "./routes/memorialrouter.mjs";
 import advertRouter from "./routes/advertrouter.mjs";
+import dashboardRouter from "./routes/Dashboardrouter.mjs";
 
 //DB connection:
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -28,12 +29,15 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-//use route in app
-app.use(userRouter);
-app.use(Dashboardrouter);
+//Use app
 app.use(feedRouter);
+app.use(dashboardRouter);
+app.use(userRouter);
 app.use(messageRouter);
 app.use(advertRouter);
+app.use(memorialRouter);
+
+
 
 
 //listen for incoming request

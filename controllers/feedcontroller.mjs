@@ -34,7 +34,7 @@ export const postFeed = async (req, res, next) => {
         await UserModel.findByIdAndUpdate(req.auth.id, {
             $push: { feed: newPost.id },
         });
-        // Re-fetch the post with populated user data
+       
         const populatedPost = await FeedModel.findById(newPost._id).populate({
             path: 'user',
             model: 'User',

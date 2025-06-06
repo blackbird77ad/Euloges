@@ -36,4 +36,24 @@ const uploadProfilePicture = multer({ storage: getStorage("profile_pictures") })
 const uploadPost = multer({ storage: getStorage("posts") });
 const uploadAdvert = multer({ storage: getStorage("ads") });
 const uploadMessage = multer({ storage: getStorage("Messages") });
-export { uploadProfilePicture,uploadMessage, uploadPost, uploadAdvert, uploadProfileAndCover, uploadProfileAndCoverMiddleware, cloudinary };
+
+const uploadMemorial = multer({
+    storage: getStorage("memorials"),
+});
+
+// Middleware to handle mainPhoto (1) and photoGallery (max 10)
+const uploadMemorialImages = uploadMemorial.fields([
+    { name: "mainPhoto", maxCount: 1 },
+    { name: "photoGallery", maxCount: 10 },
+]);
+export {
+    uploadProfilePicture,
+    uploadMessage,
+    uploadPost,
+    uploadAdvert,
+    uploadProfileAndCover,
+    uploadProfileAndCoverMiddleware,
+    uploadMemorial,
+    uploadMemorialImages,
+    cloudinary
+};

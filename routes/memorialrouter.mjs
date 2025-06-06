@@ -1,0 +1,22 @@
+import express from "express";
+import { verifyToken } from "../middlewares/auth.mjs";
+import { uploadMemorialImages } from "../config/cloudinary.mjs";
+import { postMemorial,
+    getMemorial,
+  getMemorials,
+  getUserMemorials,
+  countMemorials,
+  updateMemorial,
+  deleteMemorial
+ } from "../controllers/memorialcontroller.mjs";
+
+const memorialRouter = express.Router();
+memorialRouter.post("/create-memo", verifyToken, uploadMemorialImages, postMemorial);
+memorialRouter.get("/get-user-memo", verifyToken, getUserMemorials);
+memorialRouter.get("/get-memos", verifyToken, getMemorials);
+memorialRouter.get("/count", verifyToken, countMemorials);
+memorialRouter.get("/get-this-memo/:id", verifyToken, getMemorial);
+memorialRouter.patch("/update-memo/:id", verifyToken, uploadMemorialImages, updateMemorial);
+memorialRouter.delete("del-memo/:id", verifyToken, deleteMemorial);
+
+export default memorialRouter;
