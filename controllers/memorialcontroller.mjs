@@ -2,39 +2,44 @@ import { MemorialModel } from "../models/memorialmodel.mjs";
 import { UserModel } from "../models/usermodel.mjs";
 import { postMemorialValidator, updateMemorialValidator } from "../validators/memorialvalidator.mjs";
 
+
 export const postMemorial = async (req, res, next) => {
-    try {
-        const { error, value } = postMemorialValidator.validate(req.body);
-        if (error) {
-            return res.status(422).json({ error: error.details[0].message });
-        }
+  try {
 
-        const fileUrl = req.file?.path || req.body.uploadUrl || "";
+      const { error, value } = postMemorialValidator.validate(req.body);
+      if (error) {
+          return res.status(422).json({ error: error.details[0].message });
+      }
+       
+      const mainPhoto = req.files?.mainPhoto?.[0]?.path || "";
+      const photoGallery = req.files?.photoGallery?.map(file => file.path) || [];
 
-        const newMemorial = await MemorialModel.create({
-            ...value,
-            user: req.auth.id,
-            uploadUrl: fileUrl,
-        });
+      const newMemorial = await MemorialModel.create({
+          ...value,
+          user: req.auth.id,
+          mainPhoto,     
+          photoGallery,  
+      });
 
-        await UserModel.findByIdAndUpdate(req.auth.id, {
-            $push: { memorials: newMemorial.id },
-        });
+      await UserModel.findByIdAndUpdate(req.auth.id, {
+          $push: { memorial: newMemorial._id }, // Also fix "memorials" ➝ "memorial" if that's your schema
+      });
 
-        const populatedMemorial = await MemorialModel.findById(newMemorial._id).populate({
-            path: 'user',
-            model: 'User',
-            select: 'name profilePicture role',
-        });
+      const populatedMemorial = await MemorialModel.findById(newMemorial._id).populate({
+          path: 'user',
+          model: 'User',
+          select: 'name profilePicture role',
+      });
 
-        res.status(201).json({
-            message: "Memorial created successfully.",
-            memorial: populatedMemorial,
-        });
-    } catch (error) {
-        next(error);
-    }
+      res.status(201).json({
+          message: "Memorial created successfully.",
+          memorial: populatedMemorial,
+      });
+  } catch (error) {
+      next(error);
+  }
 };
+
 
 // Get a user's memorials
 export const getUserMemorials = async (req, res, next) => {
@@ -59,16 +64,31 @@ export const getUserMemorials = async (req, res, next) => {
     try {
       const { filter = "{}", sort = "{}", limit, skip = 0, category } = req.query;
   
-      const userFilter = JSON.parse(filter);
+      // Safely parse JSON
+      let userFilter = {};
+      let sortOption = {};
+  
+      try {
+        userFilter = JSON.parse(filter);
+      } catch (err) {
+        return res.status(400).json({ error: "Invalid JSON in 'filter' query param" });
+      }
+  
+      try {
+        sortOption = JSON.parse(sort);
+      } catch (err) {
+        return res.status(400).json({ error: "Invalid JSON in 'sort' query param" });
+      }
+  
       if (category) userFilter.category = category;
   
       let query = MemorialModel.find(userFilter)
         .populate("user", "name profilePicture dateOfBirth")
-        .sort(JSON.parse(sort))
-        .skip(parseInt(skip));
+        .sort(sortOption)
+        .skip(Number(skip));
   
       if (limit) {
-        query = query.limit(parseInt(limit));
+        query = query.limit(Number(limit));
       }
   
       const result = await query;
@@ -79,8 +99,9 @@ export const getUserMemorials = async (req, res, next) => {
     }
   };
   
+  
   // Count memorials
-  export const countMemorials = async (req, res, next) => {
+  export const  countMemorials = async (req, res, next) => {
     try {
       const { filter = "{}" } = req.query;
       const userFilter = { ...JSON.parse(filter), user: req.auth.id };

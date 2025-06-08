@@ -30,7 +30,7 @@ export const getMessages = async (req, res, next) => {
     try {
         const userId = req.params.userId;
 
-        const messages = await MessageModel.find({
+        const messages = await MessageModel.findById({
             $or: [{ sender: userId }, { receiver: userId }],
         }).sort({ sendTime: -1 });
 

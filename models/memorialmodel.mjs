@@ -12,7 +12,9 @@ const memorialSchema = new Schema({
   title: { type: String },
   details: { type: String },
   photoGallery: [{ type: String }],
-  tribute: { type: String },
+  tributeName: { type: String },
+  tributeRelation: { type: String },
+  tributeMessage: { type: String },
   livestreamLink: { type: String },
   acknowledgement: { type: String },
   user: {
