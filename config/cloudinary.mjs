@@ -46,6 +46,7 @@ const uploadMemorialImages = uploadMemorial.fields([
     { name: "mainPhoto", maxCount: 1 },
     { name: "photoGallery", maxCount: 10 },
 ]);
+
 export {
     uploadProfilePicture,
     uploadMessage,

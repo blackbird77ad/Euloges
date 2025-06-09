@@ -1,34 +1,34 @@
 import Joi from 'joi';
 
-export const postMemorialValidator= Joi.object({
+export const postMemorialValidator = Joi.object({
   fullName: Joi.string().required(),
-  mainPhoto: Joi.string(),
-  dateOfBirth: Joi.date(),
-  dateOfDeath: Joi.date(),
-  ageAtPassing: Joi.number(),
-  obituary: Joi.string(),
+  dateOfBirth: Joi.date().optional(),
+  dateOfDeath: Joi.date().optional(),
+  ageAtPassing: Joi.number().optional(),
+  obituary: Joi.string().optional(),
   time: Joi.string().optional(),
-  title: Joi.string().trim(),
-  details: Joi.string(),
-  photoGallery: Joi.array(),
-  tribute: Joi.string(),
+  title: Joi.string().optional(),
+  details: Joi.string().optional(),
+  tributeName: Joi.string().optional(),
+  tributeRelation: Joi.string().optional(),
+  tributeMessage: Joi.string().optional(),
   livestreamLink: Joi.string(),
-  acknowledgement: Joi.string()
+  acknowledgement: Joi.string().optional(),
 });
 
 
 export const updateMemorialValidator = Joi.object({
   fullName: Joi.string().required(),
-  mainPhoto: Joi.string(),
-  dateOfBirth: Joi.date(),
-  dateOfDeath: Joi.date(),
-  ageAtPassing: Joi.number(),
-  obituary: Joi.string(),
+  dateOfBirth: Joi.date().optional(),
+  dateOfDeath: Joi.date().optional(),
+  ageAtPassing: Joi.number().optional(),
+  obituary: Joi.string().optional(),
   time: Joi.string().optional(),
-  title: Joi.string().trim(),
-  details: Joi.string(),
-  photoGallery: Joi.array(),
-  tribute: Joi.string(),
-  livestreamLink: Joi.string(),
-  acknowledgement: Joi.string()
+  title: Joi.string().optional(),
+  details: Joi.string().optional(),
+  tributeName: Joi.string().optional(),
+  tributeRelation: Joi.string().optional(),
+  tributeMessage: Joi.string().optional(),
+  livestreamLink: Joi.string().uri().optional(),
+  acknowledgement: Joi.string().optional(),
 });

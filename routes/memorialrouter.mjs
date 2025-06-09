@@ -20,7 +20,7 @@ memorialRouter.get("/get-memos", verifyToken, getMemorials);
 memorialRouter.get("/count", verifyToken, countMemorials);
 
 //Dynamic routes come after
-memorialRouter.get("/get-this-memo/:id", verifyToken, getMemorial);
+memorialRouter.get("/get-this-memo/:id", getMemorial);
 memorialRouter.patch("/update-memo/:id", verifyToken, uploadMemorialImages, updateMemorial);
 memorialRouter.delete("/del-memo/:id", verifyToken, deleteMemorial); // 🔧 fixed missing slash
 

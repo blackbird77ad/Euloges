@@ -6,6 +6,7 @@ import { postMemorialValidator, updateMemorialValidator } from "../validators/me
 export const postMemorial = async (req, res, next) => {
   try {
 
+     console.log("Received files:", req.files);
       const { error, value } = postMemorialValidator.validate(req.body);
       if (error) {
           return res.status(422).json({ error: error.details[0].message });
@@ -116,7 +117,8 @@ export const getUserMemorials = async (req, res, next) => {
   // Get a single memorial
   export const getMemorial = async (req, res, next) => {
     try {
-      const memorial = await MemorialModel.findOne({ _id: req.params.id, user: req.auth.id });
+      const memorial = await MemorialModel.findById(req.params.id);
+  
       if (!memorial) {
         return res.status(404).json({ error: "Memorial not found" });
       }
@@ -126,7 +128,8 @@ export const getUserMemorials = async (req, res, next) => {
       next(error);
     }
   };
-  
+
+
   // Update a memorial
   export const updateMemorial = async (req, res, next) => {
     try {
@@ -135,11 +138,21 @@ export const getUserMemorials = async (req, res, next) => {
         return res.status(422).json({ error: error.details[0].message });
       }
   
-      const fileUrl = req.file?.path || req.body.uploadUrl || "";
+      const updateData = { ...req.body };
+  
+      // Only overwrite if new mainPhoto was uploaded
+      if (req.files?.mainPhoto?.[0]?.path) {
+        updateData.mainPhoto = req.files.mainPhoto[0].path;
+      }
+  
+      // Only overwrite if photoGallery was uploaded
+      if (req.files?.photoGallery?.length > 0) {
+        updateData.photoGallery = req.files.photoGallery.map(file => file.path);
+      }
   
       const updated = await MemorialModel.findOneAndUpdate(
         { _id: req.params.id, user: req.auth.id },
-        { ...req.body, uploadUrl: fileUrl },
+        updateData,
         { new: true }
       );
   
@@ -152,6 +165,9 @@ export const getUserMemorials = async (req, res, next) => {
       next(error);
     }
   };
+  
+
+
   
   // Delete a memorial
   export const deleteMemorial = async (req, res, next) => {
