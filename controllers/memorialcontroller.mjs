@@ -5,6 +5,11 @@ import { postMemorialValidator, updateMemorialValidator } from "../validators/me
 
 export const postMemorial = async (req, res, next) => {
   try {
+    req.body.program = JSON.parse(req.body.program);
+    req.body.tribute = JSON.parse(req.body.tribute);
+
+    console.log("Files received:", req.files);
+console.log("Body received:", req.body);
 
      console.log("Received files:", req.files);
       const { error, value } = postMemorialValidator.validate(req.body);
@@ -130,41 +135,56 @@ export const getUserMemorials = async (req, res, next) => {
   };
 
 
-  // Update a memorial
   export const updateMemorial = async (req, res, next) => {
     try {
-      const { error } = updateMemorialValidator.validate(req.body);
+      // Parse JSON strings for program and tribute
+      if (req.body.program) req.body.program = JSON.parse(req.body.program);
+      if (req.body.tribute) req.body.tribute = JSON.parse(req.body.tribute);
+  
+      console.log("Files received:", req.files);
+      console.log("Body received:", req.body);
+  
+      // Validate input
+      const { error, value } = updateMemorialValidator.validate(req.body);
       if (error) {
         return res.status(422).json({ error: error.details[0].message });
       }
   
-      const updateData = { ...req.body };
+      // Handle file uploads
+      const mainPhoto = req.files?.mainPhoto?.[0]?.path;
+      const photoGallery = req.files?.photoGallery?.map(file => file.path);
   
-      // Only overwrite if new mainPhoto was uploaded
-      if (req.files?.mainPhoto?.[0]?.path) {
-        updateData.mainPhoto = req.files.mainPhoto[0].path;
-      }
+      // Build update object
+      const updateFields = {
+        ...value,
+      };
   
-      // Only overwrite if photoGallery was uploaded
-      if (req.files?.photoGallery?.length > 0) {
-        updateData.photoGallery = req.files.photoGallery.map(file => file.path);
-      }
+      if (mainPhoto) updateFields.mainPhoto = mainPhoto;
+      if (photoGallery && photoGallery.length > 0) updateFields.photoGallery = photoGallery;
   
-      const updated = await MemorialModel.findOneAndUpdate(
-        { _id: req.params.id, user: req.auth.id },
-        updateData,
+      const updatedMemorial = await MemorialModel.findByIdAndUpdate(
+        req.params.id,
+        { $set: updateFields },
         { new: true }
-      );
+      ).populate({
+        path: 'user',
+        model: 'User',
+        select: 'name profilePicture role',
+      });
   
-      if (!updated) {
-        return res.status(404).json({ error: "Memorial not found or unauthorized" });
+      if (!updatedMemorial) {
+        return res.status(404).json({ message: "Memorial not found." });
       }
   
-      res.status(200).json({ updated });
+      res.status(200).json({
+        message: "Memorial updated successfully.",
+        memorial: updatedMemorial,
+      });
     } catch (error) {
       next(error);
     }
   };
+  
   
 
 

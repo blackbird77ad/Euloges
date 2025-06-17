@@ -22,6 +22,6 @@ memorialRouter.get("/count", verifyToken, countMemorials);
 //Dynamic routes come after
 memorialRouter.get("/get-this-memo/:id", getMemorial);
 memorialRouter.patch("/update-memo/:id", verifyToken, uploadMemorialImages, updateMemorial);
-memorialRouter.delete("/del-memo/:id", verifyToken, deleteMemorial); // 🔧 fixed missing slash
+memorialRouter.delete("/del-memo/:id", verifyToken, deleteMemorial); 
 
 export default memorialRouter;

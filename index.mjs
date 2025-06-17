@@ -12,14 +12,16 @@ import advertRouter from "./routes/advertrouter.mjs";
 import dashboardRouter from "./routes/Dashboardrouter.mjs";
 
 //DB connection:
-const MONGODB_URI = process.env.MONGODB_URI;
-
-try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB');
-} catch (err) {
-    console.error('Failed to connect to MongoDB:', err);
-}
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    console.log("✅ DB connected");
+    app.listen(process.env.PORT || 4000, () => {
+      console.log("🚀 Server listening");
+    });
+  })
 
 
 //create express app
