@@ -187,22 +187,31 @@ export const getUserMemorials = async (req, res, next) => {
   
   
 
+export const deleteMemorial = async (req, res, next) => {
+  try {
+    const memorialId = req.params.id;
 
-  
-  // Delete a memorial
-  export const deleteMemorial = async (req, res, next) => {
-    try {
-      const deleted = await MemorialModel.findOneAndDelete({
-        _id: req.body.id,
-        user: req.auth.id
-      });
-  
-      if (!deleted) {
-        return res.status(404).json({ error: "Memorial not found" });
-      }
-  
-      res.status(200).json({ message: "Memorial deleted", deleted });
-    } catch (error) {
-      next(error);
+    const memorial = await MemorialModel.findById(memorialId);
+
+    if (!memorial) {
+      return res.status(404).json({ message: "Memorial not found." });
     }
-  };
+
+    // Ensure the logged-in user is the owner
+    if (memorial.user.toString() !== req.auth.id) {
+      return res.status(403).json({ message: "Not authorized to delete this memorial." });
+    }
+
+    // Delete the memorial
+    await MemorialModel.findByIdAndDelete(memorialId);
+
+    // Remove memorial from the user's list
+    await UserModel.findByIdAndUpdate(req.auth.id, {
+      $pull: { memorial: memorialId },
+    });
+
+    res.json({ message: "Memorial deleted successfully." });
+  } catch (err) {
+    next(err);
+  }
+};
