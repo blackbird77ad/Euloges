@@ -1,6 +1,6 @@
 import express from "express";
 import { verifyToken } from "../middlewares/auth.mjs";
-import { uploadMemorialImages } from "../config/cloudinary.mjs";
+import { uploadMemorialImages,  } from "../config/cloudinary.mjs";
 import {
   postMemorial,
   getMemorial,
@@ -8,7 +8,7 @@ import {
   getUserMemorials,
   countMemorials,
   updateMemorial,
-  deleteMemorial
+  deleteMemorial,
 } from "../controllers/memorialcontroller.mjs";
 
 const memorialRouter = express.Router();

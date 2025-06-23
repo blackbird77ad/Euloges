@@ -137,24 +137,25 @@ export const getUserMemorials = async (req, res, next) => {
 
   export const updateMemorial = async (req, res, next) => {
     try {
-      // Parse JSON strings for program and tribute
+      const memorialId = req.params.id;
+  
+      // Parse JSON strings if present
       if (req.body.program) req.body.program = JSON.parse(req.body.program);
       if (req.body.tribute) req.body.tribute = JSON.parse(req.body.tribute);
   
-      console.log("Files received:", req.files);
-      console.log("Body received:", req.body);
+      console.log("Files received (UPDATE):", req.files);
+      console.log("Body received (UPDATE):", req.body);
   
-      // Validate input
+      // Validate update body
       const { error, value } = updateMemorialValidator.validate(req.body);
       if (error) {
         return res.status(422).json({ error: error.details[0].message });
       }
   
-      // Handle file uploads
+      // Handle updated images if available
       const mainPhoto = req.files?.mainPhoto?.[0]?.path;
       const photoGallery = req.files?.photoGallery?.map(file => file.path);
   
-      // Build update object
       const updateFields = {
         ...value,
       };
@@ -162,14 +163,15 @@ export const getUserMemorials = async (req, res, next) => {
       if (mainPhoto) updateFields.mainPhoto = mainPhoto;
       if (photoGallery && photoGallery.length > 0) updateFields.photoGallery = photoGallery;
   
+      // Update memorial and return updated document
       const updatedMemorial = await MemorialModel.findByIdAndUpdate(
-        req.params.id,
-        { $set: updateFields },
+        memorialId,
+        updateFields,
         { new: true }
       ).populate({
-        path: 'user',
-        model: 'User',
-        select: 'name profilePicture role',
+        path: "user",
+        model: "User",
+        select: "name profilePicture role",
       });
   
       if (!updatedMemorial) {
@@ -184,6 +186,8 @@ export const getUserMemorials = async (req, res, next) => {
       next(error);
     }
   };
+  
+  
   
   
 
