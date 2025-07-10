@@ -10,6 +10,7 @@ import messageRouter from "./routes/messagerouter.mjs";
 import memorialRouter from "./routes/memorialrouter.mjs";
 import advertRouter from "./routes/advertrouter.mjs";
 import dashboardRouter from "./routes/Dashboardrouter.mjs";
+import guestRouter from "./routes/guestBookRoutes.mjs";
 
 //DB connection:
 mongoose.connect(process.env.MONGODB_URI, {
@@ -38,6 +39,7 @@ app.use(userRouter);
 app.use(messageRouter);
 app.use(advertRouter);
 app.use(memorialRouter);
+app.use(guestRouter)
 
 
 

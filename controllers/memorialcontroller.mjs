@@ -28,7 +28,7 @@ console.log("Body received:", req.body);
       });
 
       await UserModel.findByIdAndUpdate(req.auth.id, {
-          $push: { memorial: newMemorial._id }, // Also fix "memorials" ➝ "memorial" if that's your schema
+          $push: { memorial: newMemorial._id },
       });
 
       const populatedMemorial = await MemorialModel.findById(newMemorial._id).populate({

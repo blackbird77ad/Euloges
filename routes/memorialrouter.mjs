@@ -15,8 +15,8 @@ const memorialRouter = express.Router();
 
 //Static routes come first
 memorialRouter.post("/create-memo", verifyToken, uploadMemorialImages, postMemorial);
-memorialRouter.get("/get-user-memo", verifyToken, getUserMemorials);
-memorialRouter.get("/get-memos", verifyToken, getMemorials);
+memorialRouter.get("/get-user-memo", getUserMemorials);
+memorialRouter.get("/get-memos", getMemorials);
 memorialRouter.get("/count", verifyToken, countMemorials);
 
 //Dynamic routes come after
