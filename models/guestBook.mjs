@@ -8,11 +8,6 @@ const guestBookSchema = new mongoose.Schema(
       ref: "Memorial",
       required: true
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true
-    },
     yourName: {
       type: String,
       required: true,

@@ -39,7 +39,7 @@ app.use(userRouter);
 app.use(messageRouter);
 app.use(advertRouter);
 app.use(memorialRouter);
-app.use(guestRouter)
+app.use("/api", guestRouter);
 
 
 

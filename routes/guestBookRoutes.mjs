@@ -1,8 +1,7 @@
-// routes/guestBookRoutes.mjs
 import express from "express";
 import {
   createMessage,
-  getMessages,
+  getMessagesForMemorial,
   getMessageById,
   updateMessage,
   deleteMessage
@@ -10,10 +9,19 @@ import {
 
 const guestRouter = express.Router();
 
-guestRouter.post("/guest-book", createMessage);
-guestRouter.get("/guest-book", getMessages);
-guestRouter.get("/guest-book/:id", getMessageById);
-guestRouter.put("/guest-book/:id", updateMessage);
-guestRouter.delete("/guest-book/:id", deleteMessage);
+// POST a guestbook message
+guestRouter.post("/memorials/:memorialId/guestbook", createMessage);
+
+// GET all messages for a memorial
+guestRouter.get("/memorials/:memorialId/guestbook", getMessagesForMemorial);
+
+// GET single message
+guestRouter.get("/guestbook/:id", getMessageById);
+
+// PUT update
+guestRouter.patch("/guestbook/:id", updateMessage);
+
+// DELETE
+guestRouter.delete("/guestbook/:id", deleteMessage);
 
 export default guestRouter;
