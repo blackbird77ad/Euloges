@@ -49,21 +49,21 @@ console.log("Body received:", req.body);
 
 // Get a user's memorials
 export const getUserMemorials = async (req, res, next) => {
-    try {
-      const userId = req.auth.id;
-  
-      const memorials = await MemorialModel.find({ user: userId })
-        .populate("user", "name profilePicture dateOfBirth")
-        .sort({ createdAt: -1 });
-  
-      res.status(200).json({
-        message: "User memorials fetched successfully.",
-        memorials
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+  try {
+    const userId = req.auth.id;
+    const memorials = await MemorialModel.find({ user: userId })
+      .populate("user", "name profilePicture dateOfBirth")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "User memorials fetched successfully.",
+      memorials
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
   
   // Get all memorials (with optional filters)
   export const getMemorials = async (req, res, next) => {
